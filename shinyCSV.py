@@ -36,12 +36,12 @@ if __name__ == "__main__":
 	totalShinies = totalChecks = 0
 	#suspect 222, 324
 	#unsuspect 
-	boostedDexNums = [3, 6, 9, 15, 26, 80, 83, 94,
+	alteredDexNums = [3, 6, 9, 15, 26, 80, 83, 94,
 		103, 108, 113, 115, 123, 127, 130, 131, 142, 181, 185,
 		204, 211, 214, 215, 227, 254, 257, 260, 263, 282,
 		303, 306, 308, 310, 349, 354, 362, 366, 370, 374,
 		428, 443, 459,
-		531, 564, 594, 568,
+		531, 564, 566, 594, 568,
 		610, 618, 633, 653, 686]
 
 	for i in range(len(dataJSON)):
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 		individualShinies = individualChecks = individualDays = 0
 		pokID = int(pok["id"])
 		pokName = pok["name"]
-		boosted = pokID in boostedDexNums
+		standard = pokID not in alteredDexNums
 
 		filename = pokName + ".csv"
 		# writer wipes file so store old contents to rewrite later (if it already exists)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 				for row in reader:
 					oldRows.append(row)
 
-					if not boosted:
+					if standard:
 						totalShinies += int(row[2])
 						totalChecks += int(row[3])
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 			totalInt = int(pok["total"].replace(",", ""))
 			shiniesInt = round(totalInt / rateInt)
 
-			if not boosted:
+			if standard:
 				totalShinies += shiniesInt
 				totalChecks += totalInt
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 			individualDays += 1
 
 			tabs = "\t" if len(pokName) + len(str(pokID)) >= 12 else "\t\t"
-			print(f'{pokName} (#{pokID}){tabs}LIFETIME RATE|BOOSTED: {getlowestfraction(individualShinies / individualChecks)}\t| {boosted}; DAILY RATE|CHECKS|DAYS: {rateStr} | {totalInt} | {individualDays}')
+			print(f'{pokName} (#{pokID}){tabs}LIFETIME RATE|standard: {getlowestfraction(individualShinies / individualChecks)}\t| {standard}; DAILY RATE|CHECKS|DAYS: {rateStr} | {totalInt} | {individualDays}')
 
 			writer.writerow([str(datetime.now()), f"1/{rateInt}", shiniesInt, totalInt])
 
