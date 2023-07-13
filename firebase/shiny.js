@@ -37,7 +37,7 @@ https.get(options, function (res) {
 				const dataJSON = JSON.parse(json),
 					jsonSize = dataJSON.length;
 
-				var totalShinies = 0, totalChecks = 0;
+				// var totalShinies = 0, totalChecks = 0;//unused?
 				// suspect 222, 324
 				// unsuspect 
 				// const alteredDexNums = [3, 6, 9, 15, 26, 80, 83, 94,
@@ -64,24 +64,25 @@ https.get(options, function (res) {
 						month = date.getMonth(), //month is zero-indexed ??
 						dayStr = day < 10 ? "0" + day : day,
 						monthStr = month < 10 ? "0" + (month + 1) : month + 1 + "",
-						entryNode = `/data/${pokID}/${date.getFullYear()}-${monthStr}-${dayStr}`;
+						entryNode = `data/${pokID}/${date.getFullYear()}-${monthStr}-${dayStr}`;
 
 					admin.database().ref(entryNode).once("value").then(snapshot => {
 						//if data for today doesn't already exist, add the entry
 						if(!snapshot.val()) {
+							// console.log("adding", pokID, " at ", rateStr, "(", shiniesInt, "/", checksInt, ")");
 							admin.database().ref(entryNode).set({
 								"rate": rateStr, "ignore": false/*ternary for adding comm day entry?*/, "totalShinies": shiniesInt, "totalChecks": checksInt
 							}).then(() => { checkProgress(jsonSize); });
 
 							//update totals in pokemon section
-							admin.database().ref("/pokemon/" + pokID).update({
+							admin.database().ref("pokemon/" + pokID).update({
 								"totalShinies": admin.database.ServerValue.increment(shiniesInt),
 								"totalChecks": admin.database.ServerValue.increment(checksInt)
 							}).then(() => { checkProgress(jsonSize); });
 						}
 					});
 
-					console.log(pokName + ":", shiniesInt, "/", checksInt);
+					// console.log(pokName + ":", shiniesInt, "/", checksInt);
 				}
 					
 			} catch (e) {
