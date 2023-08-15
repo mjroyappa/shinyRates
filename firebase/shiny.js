@@ -14,7 +14,7 @@ admin.initializeApp({
 
 function checkProgress(size) {
 	entriesCompleted++;
-	if(entriesCompleted == size * 2) {
+	if(entriesCompleted == size) {
 		process.exit();
 	}
 }
@@ -36,17 +36,6 @@ https.get(options, function (res) {
 			try {
 				const dataJSON = JSON.parse(json),
 					jsonSize = dataJSON.length;
-
-				// var totalShinies = 0, totalChecks = 0;//unused?
-				// suspect 222, 324
-				// unsuspect 
-				// const alteredDexNums = [3, 6, 9, 15, 26, 80, 83, 94,
-				// 	103, 108, 113, 115, 123, 127, 130, 131, 142, 181, 185,
-				// 	204, 211, 214, 215, 227, 254, 257, 260, 263, 282,
-				// 	303, 306, 308, 310, 349, 354, 362, 366, 370, 374,
-				// 	428, 443, 459,
-				// 	531, 564, 566, 594, 568,
-				// 	610, 618, 633, 653, 686]
 
 				for (var i = 0; i < jsonSize; i++) {
 					const pok = dataJSON[i];	//current poke (data from shinyrates.com)
@@ -71,14 +60,14 @@ https.get(options, function (res) {
 						if(!snapshot.val()) {
 							// console.log("adding", pokID, " at ", rateStr, "(", shiniesInt, "/", checksInt, ")");
 							admin.database().ref(entryNode).set({
-								"rate": rateStr, "ignore": false/*ternary for adding comm day entry?*/, "totalShinies": shiniesInt, "totalChecks": checksInt
+								"rate": rateStr,
+								/*ternary for adding comm day entry? currently updates with trigger if manually changed in rtdb*/
+								"ignore": false,
+								"totalShinies": shiniesInt,
+								"totalChecks": checksInt
 							}).then(() => { checkProgress(jsonSize); });
 
-							//update totals in pokemon section
-							admin.database().ref("pokemon/" + pokID).update({
-								"totalShinies": admin.database.ServerValue.increment(shiniesInt),
-								"totalChecks": admin.database.ServerValue.increment(checksInt)
-							}).then(() => { checkProgress(jsonSize); });
+							//totals update with firebase trigger
 						}
 					});
 
